@@ -8,15 +8,15 @@ action :add do
   env_name = "#{app_name}-env"
   project_home = "#{env_root}/#{env_name}"
   
-  puts "#{env_root}"
-  puts "#{app_name}-env"
-  
+  # Give ownership of the directory that houses the virtualenv to the ubuntu user
   
   directory "#{env_root}" do
        owner "ubuntu"
        group "ubuntu"
        mode 0775
   end
+  
+  # Create the virtualenv
   
   python_virtualenv "#{project_home}" do
     owner "ubuntu"
@@ -25,6 +25,8 @@ action :add do
     action :create
   end
   
+  # clone the repo
+  
   repo_address = "https://github.com/#{repo}.git"
   
   execute "git_clone" do
@@ -32,6 +34,10 @@ action :add do
     user "ubuntu"
     cwd project_home
   end
+  
+  # install the external apps
+  # I'm not using the opscode cookbook because there's a bug
+  # around installing libraries with c extensions in virtualenvs
   
   execute "#{project_home}/bin/pip install -r conf/external_apps.txt" do
     user "ubuntu"
